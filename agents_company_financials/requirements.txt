@@ -1,4 +1,6 @@
 langchain
 langchain-community
 langchain-openai
+pandas
 yfinance
+sec-api
