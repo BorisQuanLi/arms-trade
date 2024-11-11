@@ -1,6 +1,8 @@
 langchain
 langchain-community
 langchain-openai
+langgraph
 pandas
 yfinance
 sec-api
+tavily-python
