@@ -10,10 +10,7 @@ from langchain_openai import ChatOpenAI
 from dotenv import find_dotenv, load_dotenv
 import os
 
-current_dir_path = os.getcwd()
-# relative path of the sibling directory that contains the .env file
-sibling_dir_path = os.path.join(current_dir_path, "..", "agents_company_financials")
-dotenv_path = find_dotenv(sibling_dir_path)
+dotenv_path = find_dotenv()
 load_dotenv(dotenv_path)   # change to use Groq
 tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
