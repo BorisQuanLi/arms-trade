@@ -29,6 +29,31 @@ When a user asks you about the main defense companies that make armamnet in a pa
 companies with a one sentence description of that company."""
 
 memory = MemorySaver()
+
+# https://python.langchain.com/docs/how_to/migrate_agent/
+
+df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/Dash-by-Plotly/refs/heads/master/AI/Arms-Trade/country%20trade%20register.csv")
+config = {"configurable": {"thread_id": "test-thread"}}
+
+langgraph_agent_executor = create_react_agent(
+    model, tools, checkpointer=memory
+)
+
+response = langgraph_agent_executor.invoke(
+            {
+                "messages": [
+                    ("system", system_message),
+                    ("user", f"What are the main defense companies that make armamnet in the Russia?")
+                ]
+            },
+            config,
+        )["messages"][-1].content
+
+print(response)
+
+
+
+
 langgraph_agent_executor = create_react_agent(
     model, tools, state_modifier=system_message, checkpointer=memory
 )
