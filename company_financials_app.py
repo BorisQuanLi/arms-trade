@@ -1,4 +1,5 @@
 from dash import Dash, dcc, callback, Input, Output, no_update
+import dash_html_components as html  # Add this import
 import plotly.express as px
 import pandas as pd
 from tavily import TavilyClient
@@ -21,7 +22,6 @@ def search_web(query: str):
     print(f"performing web search for: {query}")
     return tavily_client.search(query)
 
-
 model = ChatOpenAI(model="gpt-4o")
 tools = [search_web]
 system_message = """You are an experienced web researcher that is an expert in arms trade and defense companies.
@@ -30,8 +30,7 @@ companies with a one sentence description of that company."""
 
 memory = MemorySaver()
 
-# https://python.langchain.com/docs/how_to/migrate_agent/
-
+# Load the DataFrame once
 df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/Dash-by-Plotly/refs/heads/master/AI/Arms-Trade/country%20trade%20register.csv")
 config = {"configurable": {"thread_id": "test-thread"}}
 
@@ -51,20 +50,10 @@ response = langgraph_agent_executor.invoke(
 
 print(response)
 
+app = Dash(__name__)
 
-
-
-langgraph_agent_executor = create_react_agent(
-    model, tools, state_modifier=system_message, checkpointer=memory
-)
-
-config = {"configurable": {"thread_id": "test-thread"}}
-
-
-df = pd.read_csv("https://raw.githubusercontent.com/Coding-with-Adam/Dash-by-Plotly/refs/heads/master/AI/Arms-Trade/country%20trade%20register.csv")
-
-app = Dash()
-app.layout = [
+# Define the layout
+app.layout = html.Div([  # Ensure app.layout is a single Dash component
     dcc.RadioItems(["Supplier", "Recipient"], value="Supplier", id="radio-btn"),
     dcc.RangeSlider(
         min=df["Delivery year"].min(),
@@ -90,8 +79,7 @@ app.layout = [
     ),
     dcc.Graph(id="my-graph"),
     dcc.Markdown(id='search-area')
-]
-
+])
 
 @callback(
     Output("my-graph", "figure"),
@@ -99,15 +87,12 @@ app.layout = [
     Input("years", "value"),
 )
 def update_graph(selected_value, selected_years):
-    # print(selected_years)
-    # [2000,2023]
     if selected_years[0] == selected_years[1]:
         dff = df[df["Delivery year"] == selected_years[0]]
     else:
         dff = df[
             df["Delivery year"].isin(range(selected_years[0], selected_years[1] + 1))
         ]
-        # print(dff['Delivery year'].unique())
     if selected_value == "Supplier":
         fig = px.treemap(
             dff,
@@ -127,7 +112,6 @@ def update_graph(selected_value, selected_years):
 
     fig.update_layout(margin=dict(l=10, r=10, t=30, b=30))
     return fig
-
 
 @callback(
     Output('search-area', 'children'),
@@ -157,8 +141,6 @@ def country_info(clicked):
         return response
     else:
         return no_update
-
-
 
 if __name__ == "__main__":
     app.run_server(debug=False)
